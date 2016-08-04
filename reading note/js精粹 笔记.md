@@ -18,6 +18,8 @@ js是第一个成为主流点lambda语言，相对于java，与lisp、scheme有�
 
 支持Lambda函数，既匿名函数
 
+---
+
 ## 2章 语法
 
 标识符用于语句、变量、参数、属性名、运算符、标记
@@ -86,7 +88,9 @@ typeof null //object
 
 对象字面量，是一种可以方便按制定规则创建对象点表示法，属性名是标识符或字符串，属性名被当作字面量而不是变量，属性名只有在编译时候才知道（`with`抛出异常的原因）
 
-## 对象
+---
+
+## 3章 对象
 
 js数据类型
 - 基本数据类型：null, undefined, boolean, number, string
@@ -139,6 +143,8 @@ a.status && a.status.x; //undefined
 javascript可以随意定义全局变量来容纳资源，全局变量削弱了灵活性，可以通过手动创建自定义全局变量，将所用到的内容纳入到这个命名空间，以此避免与其它组件冲突
 
 闭包也可用于信息隐藏，减少全局污染
+
+---
 
 ## 4章 函数
 
@@ -327,6 +333,8 @@ P40 代码例子不是很懂
 有些对象没有返回值，则默认为`undefined`,如果让这些方法返回`this`，则启用级联。在一个级联中，可通过单独一条语句调用一个对象的很多方法。
 例如在ajax类库中启用级联。
 
+---
+
 ## 5章 继承
 
 基于类的与阿眼中，继承提供两个有用的服务，一是代码复用的一种形式（当一个新的类和一个已存在的类大部分相似时，复用可以显著减少软件开发成本），二是引入一套类型系统规范（程序员抚恤编写显式类型转换，从而减少工作量，但会带来安全风险）。
@@ -343,4 +351,159 @@ javascript提供通过构造函数产生对象的方法。
 
 每个函数被创建时，函数对象有`prototype`对象属性，该属性包含`constructor`属性，指向这个新创建的函数。
 
-P 69
+函数化、部件内容不是很懂
+
+## 数组
+
+### 长度
+
+数组含有`length`属性，访问超过数组长度的元素会得到`undefined`，而不是数组越界错误。
+
+`length`赋值为更小的值时，数组多出部分会被省略;设置为更大值时，空余位置会被填上`undefined`。
+
+向数组末尾添加新数据，可以使用`array[array.length]=newValue`或`array.push(newValue)`
+
+### 删除
+
+使用`delete`删除数组元素时候，原位置会留下`undefined`，数组长度`length`不会改变。
+
+使用`splice`可正常移除数组元素。
+```javascript
+var number = [0, 1, 2, 3, 4];
+delete number[4];       //// [0, 1, 2, 3, undefined]
+// splice 两个参数分别代表起始位置、要删除的元素个数
+number.splice(2, 2);    //// [0, 1, undefined]
+```
+
+### 枚举
+
+`for in`可以用于遍历数组所有属性，但无法保证顺序，并可能获得原型链中属性。
+使用普通`for`循环+`length`属性等可获得正常的次序
+```javascript
+var number = [0, 1, 2, 3, 4];
+var i ;
+for(i = 0; i < number.length; i++){
+    console.log(number[i]);
+}
+```
+
+### 容易混淆的地方 数组类型的选择与判断
+
+区分选择数组与对象：当属性名是小而连续的整数时，使用数组，其它情况使用对象。
+
+判断数组类型：使用`typeof`判断数组得到的是`object`。
+书中的方式
+```javascript
+value && typeof value === "object" && value.constructor === Array
+// 也许类似于以下代码
+value instanceof Array
+```
+
+在识别从不同窗口或帧里构造的数组时会失败，更推荐的方式
+```javascript
+Object.prototype.toString.apply(value) === "[object Array]"
+```
+
+
+
+
+
+## 9章 代码风格
+
+javascript没有块级作用域，所以建议在每个函数开始部分声明所有变量。
+
+## 10章 优美的特性
+
+- 函数是顶级对象：函数是有此法作用域的闭包
+- 基于原型继承的动态对象：对象无类别，可通过普通的赋值给任何对吸纳该添加任何新成员属性
+- 对象字面量和数组字面量：方便创建对象和数组。
+
+## 11章 毒瘤
+
+### 全局变量
+
+全局变量在代码规模小的时候会来带一定好处，代码规模增大时，会变得难以管理，降低全局变量的可靠性
+
+声明全局变量的几种方式
+- 在任何函数之外放置`var foo=value`
+- 给全局变量添加属性`window.foo=value`
+- 直接使用未经声明的变量`foo=value`
+
+### 作用域
+
+没有块级作用域，只有函数作用域。因此最好在函数开头部分声明所有变量。
+
+### 自动插入分号
+
+```javascript
+return
+{
+    status:true;
+};
+// 得到的结果是 undefined
+
+return{
+    status:true;
+};
+// 得到正确结果
+```
+
+`return`语句不允许换行
+
+### 保留字 ？
+
+保留字用作对象字面类的键值时，不许被引号扩起来，并且必须使用方括号取值。
+建议不要使用保留字做标识符
+
+### typeof
+
+```javascript
+typeof null;        //object
+typeof /a/;         //object
+
+// 判断是一个对象或数组的方法
+if(value && typeof value === "object"){
+    // 是对象（或数组 数组也是对象类型）
+}
+```
+### parseInt
+
+```javascript
+parseInt("16 tons");    // 16
+parseInt("08");         // 可能以8进制解析为0 建议指定进制
+parseInt("08", 10);
+```
+
+### 浮点数运算精度
+
+```javascript
+0.1+0.2;    // 0.30000000000000004
+```
+
+### NaN
+
+```javascript
+typeof NaN === "number";    // true “不是一个数字”的类型为数字
+
+// 可能产生于将非字符串转化为字符串时
++ "0";         //0
++ "789oops";   //NaN    可与 parseInt对比
+
+// NaN 不等于任何值 包括自己
+NaN === NaN;    //false
+NaN !== NaN;    //true
+
+// isNaN 用于检验是否为NaN 如果是字符串 则先用+操作符
+isNaN(NaN);     //true
+isNaN(0);       //false
+isNaN("789oop");//true
+isNaN("0")      //false
+
+// isFinite 可用于判断是否为数字，会筛选掉NaN和Infinity 但这个函数遇到其它类型时会试图将其转化为数字
+// 自定义判断数字类型
+typeof value === "number" && isFinite(value);
+```
+
+### hasOwnProperty
+
+`hasOwnProperty`只是一个方法，而非运算符。导致其可以被赋值。
